@@ -1,5 +1,5 @@
 
-module Synchronous_FIFO(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
+module Sync_FIFO(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
   input clk,rst_n,w_en,r_en;
   input [15:0] data_in;
   output full,empty;
