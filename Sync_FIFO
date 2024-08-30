@@ -1,54 +1,53 @@
-
-module Sync_FIFO(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
-  input clk,rst_n,w_en,r_en;
-  input [15:0] data_in;
-  output full,empty;
-  output reg [15:0] data_out;
+module Sync_FIFO(clk_i, rst_n_i, write_en_i, read_en_i, data_in_i, data_out_o, fifo_full_o, fifo_empty_o);
+  input clk_i, rst_n_i, write_en_i, read_en_i;
+  input [15:0] data_in_i;
+  output fifo_full_o, fifo_empty_o;
+  output reg [15:0] data_out_o;
   
-  reg[3:0] w_ptr,r_ptr;
+  reg[3:0] write_ptr, read_ptr;
   
-  reg [15:0] FIFO [7:0];
+  reg [15:0] fifo_mem [7:0];
   
-  // reset FIFO
+  // Reset FIFO
   
-  always@(posedge clk or negedge rst_n)
+  always@(posedge clk_i or negedge rst_n_i)
     begin
-      if(!rst_n)
+      if(!rst_n_i)
         begin
-          data_out <= 16'h0000;
-          w_ptr <= 4'b0000;
-          r_ptr <= 4'b0000;
+          data_out_o <= 16'h0000;
+          write_ptr <= 4'b0000;
+          read_ptr <= 4'b0000;
         end
     end
   
-  // writting into FIFO
+  // Writing into FIFO
   
-  always@(posedge clk)
+  always@(posedge clk_i)
     begin
-      if(!full & w_en)
+      if(!fifo_full_o & write_en_i)
         begin 
-          FIFO[w_ptr[2:0]] <= data_in;
-          w_ptr <= w_ptr + 1'b1;
+          fifo_mem[write_ptr[2:0]] <= data_in_i;
+          write_ptr <= write_ptr + 1'b1;
         end
     end
   
-  // reading from FIFO
+  // Reading from FIFO
   
-  always@(posedge clk)
+  always@(posedge clk_i)
     begin
-      if(!empty & r_en)
+      if(!fifo_empty_o & read_en_i)
         begin
-          data_out <= FIFO[r_ptr[2:0]];
-          r_ptr <= r_ptr + 1'b1;
+          data_out_o <= fifo_mem[read_ptr[2:0]];
+          read_ptr <= read_ptr + 1'b1;
         end
     end
           
   // Empty Condition
   
-  assign empty = (w_ptr==r_ptr);
+  assign fifo_empty_o = (write_ptr == read_ptr);
   
-  // FULL Condition
+  // Full Condition
   
-  assign full = (w_ptr[3] ^ r_ptr[3]) & (w_ptr[2:0] == r_ptr[2:0]);
+  assign fifo_full_o = (write_ptr[3] ^ read_ptr[3]) & (write_ptr[2:0] == read_ptr[2:0]);
   
-  endmodule
+endmodule
