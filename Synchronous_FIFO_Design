@@ -1,0 +1,54 @@
+
+module Synchronous_FIFO(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
+  input clk,rst_n,w_en,r_en;
+  input [15:0] data_in;
+  output full,empty;
+  output reg [15:0] data_out;
+  
+  reg[3:0] w_ptr,r_ptr;
+  
+  reg [15:0] FIFO [7:0];
+  
+  // reset FIFO
+  
+  always@(posedge clk or negedge rst_n)
+    begin
+      if(!rst_n)
+        begin
+          data_out <= 16'h0000;
+          w_ptr <= 4'b0000;
+          r_ptr <= 4'b0000;
+        end
+    end
+  
+  // writting into FIFO
+  
+  always@(posedge clk)
+    begin
+      if(!full & w_en)
+        begin 
+          FIFO[w_ptr[2:0]] <= data_in;
+          w_ptr <= w_ptr + 1'b1;
+        end
+    end
+  
+  // reading from FIFO
+  
+  always@(posedge clk)
+    begin
+      if(!empty & r_en)
+        begin
+          data_out <= FIFO[r_ptr[2:0]];
+          r_ptr <= r_ptr + 1'b1;
+        end
+    end
+          
+  // Empty Condition
+  
+  assign empty = (w_ptr==r_ptr);
+  
+  // FULL Condition
+  
+  assign full = (w_ptr[3] ^ r_ptr[3]) & (w_ptr[2:0] == r_ptr[2:0]);
+  
+  endmodule
