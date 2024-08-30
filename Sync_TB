@@ -7,7 +7,7 @@ reg [3:0] rdptr, wtptr;
 wire full,empty;
 wire [15:0] data_out;
 
-Synchronous_FIFO S1(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
+Sync_FIFO S1(clk,rst_n,w_en,r_en,data_in, data_out, full, empty);
 
 always #2 clk = ~clk;
 
